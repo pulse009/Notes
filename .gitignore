@@ -32,7 +32,5 @@
 *.app
 
 # Unnecessary files
-.build/
-
-# Private data
-db/test.env
+build/
+test.env
