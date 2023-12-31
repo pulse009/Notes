@@ -34,3 +34,4 @@
 # Unnecessary files
 build/
 test.env
+.vscode
