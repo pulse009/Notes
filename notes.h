@@ -1,4 +1,3 @@
-#include <string>
 #include <cstdlib>
 #include "libpq-fe.h"
 
@@ -10,9 +9,9 @@ struct DbConnectParameters {
 };
 
 // Data for adding note
-// todo: еще добавить столбцов
 struct InfoToInsert {
     std::string task;
+    std::string deadline;
 };
 
 // todo: сделать изменение порядкового номера
@@ -38,7 +37,7 @@ private:
     }
 
     //todo: сделать разделение на операции по QueryType
-    void SendQueryToServer(QueryType type, const char* query){
+    void SendQueryToServer(const char* query){
         PGresult *result = PQexec(conn, query);
 
         if (PQresultStatus(result) == PGRES_COMMAND_OK) {
@@ -51,6 +50,20 @@ private:
         }
     }
 
+    void DeadlineDateParser (std::string& date){
+        date = date.substr(6,4) + "-" + date.substr(3,2) + "-" + date.substr(0,2);
+    }
+
+    std::string InsertQueryForming (std::string& task, std::string& date){
+        std::string queryStr = "INSERT INTO notes (note) VALUES ('" + task + "');";
+
+        if (date != ""){
+            DeadlineDateParser (date);
+            queryStr = "INSERT INTO notes (note, deadline) VALUES ('" + task + "', '" + date + "');";
+        }
+        return queryStr;
+    }
+
 public:
     void ConnectToServer(DbConnectParameters& requestParameters){
         std::string request = GetFullRequest(requestParameters);
@@ -59,10 +72,11 @@ public:
         conn = PQconnectdb(request.c_str());
     }
 
-    void AddTask(std::string& task){
-        std::string queryStr = "INSERT INTO notes(note) VALUES ('" + task + "');";
+    //засунуть внутренность этой функции в sedquerytoserver по типам запроса
+    void AddTask (std::string& task, std::string& date){
+        std::string queryStr = InsertQueryForming(task, date);
         const char* query = queryStr.c_str();
-        SendQueryToServer(QueryType::INSERT, query);
+        SendQueryToServer(query);
     }
 
     void StopConnection(){

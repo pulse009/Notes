@@ -15,8 +15,12 @@ int main() {
 
     InfoToInsert insertParameters;
     insertParameters.task = "Clean house";
+    insertParameters.deadline = ""; 
 
-    databaseManager.AddTask(insertParameters.task);
+    //the only way to input date
+    insertParameters.deadline = "23.03.2024"; 
+
+    databaseManager.AddTask(insertParameters.task, insertParameters.deadline);
 
     databaseManager.StopConnection();
 
