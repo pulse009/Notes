@@ -21,9 +21,9 @@ struct InfoToUpdate {
 };
 
 // todo: сделать изменение порядкового номера
-// struct InfoToDelete {
-//     std::string 
-// }
+struct InfoToDelete {
+    int id;
+};
 
 enum class QueryType {
     INSERT, 
@@ -42,7 +42,8 @@ private:
         return returnableQuery;
     }
 
-    void appendQuery (const char* query){
+    //unificated append function
+    void submitQuery (const char* query){
         PGresult *result = PQexec(conn, query);
 
         if (PQresultStatus(result) == PGRES_COMMAND_OK) {
@@ -59,6 +60,7 @@ private:
         date = date.substr(6,4) + "-" + date.substr(3,2) + "-" + date.substr(0,2);
     }
 
+    //Forming ready-to-append INSERT query
     std::string insertQueryForming (std::string& task, std::string& date){
         std::string queryStr = "INSERT INTO notes (note) VALUES ('" + task + "');";
 
@@ -69,8 +71,14 @@ private:
         return queryStr;
     }
 
+    //Forming ready-to-append UPDATE query
     std::string updateQueryForming (int& id, std::string& updatableInfo, std::string& newValue){
         std::string queryStr = "UPDATE notes SET " + updatableInfo + " = '" + newValue + "' WHERE id = " + std::to_string(id) + ";";
+        return queryStr;
+    }
+
+    std::string deleteQueryForming (int& id){
+        std::string queryStr = "DELETE from notes WHERE id = " + std::to_string(id) + ";";
         return queryStr;
     }
 
@@ -83,20 +91,26 @@ public:
     } 
     
 
-    //Sending additional request to database
-    void addTask (std::string& task, std::string& date){
+    //Sending additional request
+    void add (std::string& task, std::string& date){
         std::string queryStr = insertQueryForming(task, date);
         const char* query = queryStr.c_str();
-        appendQuery(query);
+        submitQuery(query);
     }
 
-    //todo: сделать разделение на операции по QueryType
-    //апдейт таски будет по id, потому что в случае применения в gui тыкаться апдейт будет по id
-    void updateTask (int& id, std::string& columnName, std::string& newValue){
+    //Updating and appending changed information
+    void update (int& id, std::string& columnName, std::string& newValue){
         std::string queryStr = updateQueryForming(id, columnName, newValue);
         const char* query = queryStr.c_str();
-        appendQuery(query);
+        submitQuery(query);
 
+    }
+
+    //Deleting function
+    void remove (int& id){
+        std::string queryStr = deleteQueryForming(id);
+        const char* query = queryStr.c_str();
+        submitQuery(query);
     }
 
     void stopConnection(){

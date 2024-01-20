@@ -15,21 +15,23 @@ int main() {
 
     //insert parameters
     InfoToInsert insertParameters;
-    insertParameters.task = "Clean house";
-    insertParameters.deadline = ""; 
+    insertParameters.task = "Smash house";
+    insertParameters.deadline = "23.03.2024"; 
+
+    // databaseManager.add(insertParameters.task, insertParameters.deadline);
 
     //update parameters
     InfoToUpdate updateParameters;
     updateParameters.id = 24;
     updateParameters.updatableInfo = "note";
     updateParameters.newValue = "go home";
+    
+    // databaseManager.update(updateParameters.id, updateParameters.updatableInfo, updateParameters.newValue);
 
-    //the only way to input date
-    //todo: может добавить еще вариации формата даты
-    insertParameters.deadline = "23.03.2024"; 
+    InfoToDelete deleteParameters;
+    deleteParameters.id = 38;
 
-    // databaseManager.addTask(insertParameters.id, insertParameters.deadline);
-    databaseManager.updateTask(updateParameters.id, updateParameters.updatableInfo, updateParameters.newValue);
+    databaseManager.remove(deleteParameters.id);
 
     databaseManager.stopConnection();
 
