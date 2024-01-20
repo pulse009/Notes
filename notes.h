@@ -14,6 +14,12 @@ struct InfoToInsert {
     std::string deadline;
 };
 
+struct InfoToUpdate {
+    int id;
+    std::string updatableInfo;
+    std::string newValue;
+};
+
 // todo: сделать изменение порядкового номера
 // struct InfoToDelete {
 //     std::string 
@@ -31,13 +37,12 @@ private:
     PGconn* conn;
 
     // Connection request forming
-    std::string GetFullRequest(DbConnectParameters& parameters){
+    std::string getFullRequest (DbConnectParameters& parameters){
         std::string returnableQuery = "dbname=notes user=" + std::string(parameters.username) + " password=" + std::string(parameters.password) + parameters.host;
         return returnableQuery;
     }
 
-    //todo: сделать разделение на операции по QueryType
-    void SendQueryToServer(const char* query){
+    void appendQuery (const char* query){
         PGresult *result = PQexec(conn, query);
 
         if (PQresultStatus(result) == PGRES_COMMAND_OK) {
@@ -50,36 +55,51 @@ private:
         }
     }
 
-    void DeadlineDateParser (std::string& date){
+    void deadlineDateParser (std::string& date){
         date = date.substr(6,4) + "-" + date.substr(3,2) + "-" + date.substr(0,2);
     }
 
-    std::string InsertQueryForming (std::string& task, std::string& date){
+    std::string insertQueryForming (std::string& task, std::string& date){
         std::string queryStr = "INSERT INTO notes (note) VALUES ('" + task + "');";
 
         if (date != ""){
-            DeadlineDateParser (date);
+            deadlineDateParser (date);
             queryStr = "INSERT INTO notes (note, deadline) VALUES ('" + task + "', '" + date + "');";
         }
         return queryStr;
     }
 
+    std::string updateQueryForming (int& id, std::string& updatableInfo, std::string& newValue){
+        std::string queryStr = "UPDATE notes SET " + updatableInfo + " = '" + newValue + "' WHERE id = " + std::to_string(id) + ";";
+        return queryStr;
+    }
+
 public:
-    void ConnectToServer(DbConnectParameters& requestParameters){
-        std::string request = GetFullRequest(requestParameters);
+    void connectToServer(DbConnectParameters& requestParameters){
+        std::string request = getFullRequest(requestParameters);
 
         // Connection
         conn = PQconnectdb(request.c_str());
-    }
+    } 
+    
 
-    //засунуть внутренность этой функции в sedquerytoserver по типам запроса
-    void AddTask (std::string& task, std::string& date){
-        std::string queryStr = InsertQueryForming(task, date);
+    //Sending additional request to database
+    void addTask (std::string& task, std::string& date){
+        std::string queryStr = insertQueryForming(task, date);
         const char* query = queryStr.c_str();
-        SendQueryToServer(query);
+        appendQuery(query);
     }
 
-    void StopConnection(){
+    //todo: сделать разделение на операции по QueryType
+    //апдейт таски будет по id, потому что в случае применения в gui тыкаться апдейт будет по id
+    void updateTask (int& id, std::string& columnName, std::string& newValue){
+        std::string queryStr = updateQueryForming(id, columnName, newValue);
+        const char* query = queryStr.c_str();
+        appendQuery(query);
+
+    }
+
+    void stopConnection(){
         PQfinish(conn);
     }
 };

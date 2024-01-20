@@ -11,18 +11,27 @@ int main() {
     requestParameters.password = "123";
     requestParameters.host     = "localhost";
 
-    databaseManager.ConnectToServer(requestParameters);
+    databaseManager.connectToServer(requestParameters);
 
+    //insert parameters
     InfoToInsert insertParameters;
     insertParameters.task = "Clean house";
     insertParameters.deadline = ""; 
 
+    //update parameters
+    InfoToUpdate updateParameters;
+    updateParameters.id = 24;
+    updateParameters.updatableInfo = "note";
+    updateParameters.newValue = "go home";
+
     //the only way to input date
+    //todo: может добавить еще вариации формата даты
     insertParameters.deadline = "23.03.2024"; 
 
-    databaseManager.AddTask(insertParameters.task, insertParameters.deadline);
+    // databaseManager.addTask(insertParameters.id, insertParameters.deadline);
+    databaseManager.updateTask(updateParameters.id, updateParameters.updatableInfo, updateParameters.newValue);
 
-    databaseManager.StopConnection();
+    databaseManager.stopConnection();
 
     return 0;
 }
