@@ -10,5 +10,6 @@ END $$;
 
 CREATE TABLE IF NOT EXISTS notes (
     id SERIAL PRIMARY KEY,
-    note TEXT
+    note TEXT,
+    deadline Date
 );
